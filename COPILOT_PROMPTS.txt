@@ -1,0 +1,303 @@
+# COPILOT PROMPTS FOR DASHBOARD ENHANCEMENTS
+
+## 📋 TASK 1: ADD "COST IMPACT" SECTION
+
+### Prompt for Copilot:
+
+```
+Create a new component called "CostImpactPanel.tsx" in src/components/ that displays the financial impact of bottlenecks.
+
+Requirements:
+1. Accept props: processData (array of ProcessStep), hourlyOperationCost (number, default $150/hour)
+2. Calculate cost impact for each bottleneck using formula:
+   - delay_minutes = (actualDuration - averageDuration) / 60000
+   - daily_cost = delay_minutes * (hourlyOperationCost / 60) * orders_per_day
+   - Assume 100 orders per day for now
+3. Display:
+   - Individual bottleneck costs (processes where actualDuration > averageDuration)
+   - Total daily cost impact
+   - Total weekly cost impact (daily × 7)
+   - Total monthly cost impact (daily × 30)
+4. Use dark theme matching existing components
+5. Show dollar amounts with proper formatting ($2,400.00)
+6. Color code: red for high impact (>$1000/day), orange for medium ($500-1000), yellow for low (<$500)
+7. Add a visual indicator (💰) and progress bars showing relative impact
+
+Visual structure:
+- Card layout with gradient background
+- List of processes with delays and their daily cost
+- Summary section at bottom with total weekly/monthly impact
+- Use icons and clear typography
+
+Then integrate this component into InsightPanel.tsx or create a new section in DashboardLayout.tsx below the chart.
+```
+
+---
+
+## 📋 TASK 2: ADD "RECOMMENDED ACTIONS" TO INSIGHTS
+
+### Prompt for Copilot:
+
+```
+Enhance the InsightPanel.tsx component to include actionable recommendations for each bottleneck.
+
+Requirements:
+1. Create a function "generateRecommendations()" that takes a RiskAnalysis object and returns an array of recommendation objects with:
+   - title: string (e.g., "Add temporary staffing")
+   - description: string (specific action to take)
+   - expectedImpact: string (e.g., "-6 min processing time")
+   - costSavings: number (estimated daily savings)
+   - difficulty: "Low" | "Medium" | "High"
+
+2. Recommendation logic based on process and severity:
+   - If delay > 50%: Suggest immediate staffing/resource addition
+   - If delay 20-50%: Suggest process optimization or equipment check
+   - If delay < 20%: Suggest monitoring and preventive measures
+
+3. Process-specific recommendations:
+   - Receiving: "Add dock door capacity", "Implement cross-docking"
+   - Quality Check: "Add inspection station", "Implement sampling procedures"
+   - Storing: "Optimize putaway routing", "Add storage locations"
+   - Material Picking: "Implement batch picking", "Optimize pick paths"
+   - Packaging: "Add packing station", "Pre-stage materials"
+   - Dispatch: "Add loading staff", "Pre-stage high-priority orders"
+
+4. Display recommendations in expandable section within each InsightCard
+5. Show estimated ROI (cost savings vs implementation cost)
+6. Add visual indicators for difficulty level (🟢 Low, 🟡 Medium, 🔴 High)
+
+Update the InsightCard component to include a "Show Recommendations" button that expands to show 2-3 top recommendations.
+```
+
+---
+
+## 📋 TASK 3: ADD "ROOT CAUSE ANALYSIS" VIEW
+
+### Prompt for Copilot:
+
+```
+Create a new component "RootCauseAnalysis.tsx" in src/components/ that displays potential root causes for bottlenecks.
+
+Requirements:
+1. Accept props: processStep (ProcessStep), riskAnalysis (RiskAnalysis)
+2. Identify and display contributing factors in categories:
+   - Staffing issues (understaffed, skill gaps, scheduling)
+   - Equipment issues (downtime, capacity limits, maintenance)
+   - Process issues (inefficient workflow, manual steps, waiting time)
+   - Volume issues (demand surge, order complexity, seasonal peak)
+   - Dependency issues (upstream delays, inventory availability)
+
+3. Generate root causes based on process characteristics:
+   - If actualDuration > 150% of average: "Severe capacity constraint"
+   - If status is 'critical': Suggest multiple contributing factors
+   - Use the process name to infer likely causes:
+     * Receiving delays → likely dock/unloading issues
+     * Quality Check delays → inspection capacity or defect rate
+     * Storing delays → warehouse space or travel distance
+     * Picking delays → inventory location or order complexity
+     * Packaging delays → material availability or station capacity
+     * Dispatch delays → carrier availability or loading capacity
+
+4. Display as a card with:
+   - Section header: "ROOT CAUSE ANALYSIS"
+   - Icon-based factor list with percentages (estimated contribution)
+   - Visual breakdown (pie chart or horizontal bars)
+   - "Primary Root Cause" highlighted at top
+   - "Secondary Factors" listed below
+
+5. Add a toggle button in InsightCard to show/hide root cause analysis
+6. Use consistent dark theme styling
+
+Integrate this as an expandable section in the InsightPanel for processes marked as bottlenecks.
+```
+
+---
+
+## 📋 TASK 4: ADD "SCENARIO PLANNER"
+
+### Prompt for Copilot:
+
+```
+Create a new component "ScenarioPlanner.tsx" in src/components/ that allows users to test what-if scenarios.
+
+Requirements:
+1. Create a modal or side panel component that opens when user clicks "Plan Scenarios" button
+2. Allow users to select:
+   - Target process (dropdown of all 6 processes)
+   - Intervention type: 
+     * "Add 1 staff member" (-20% processing time)
+     * "Add 2 staff members" (-35% processing time)
+     * "Improve equipment" (-15% processing time)
+     * "Optimize process" (-25% processing time)
+     * "Combine multiple" (custom reduction)
+
+3. Calculate and display impact:
+   - Current state: actual time, risk score, daily cost
+   - Projected state: new time, new risk score, projected savings
+   - ROI metrics:
+     * Daily cost savings
+     * Implementation cost (estimated: staff=$200/day, equipment=$500/day, process=$100/day)
+     * Breakeven time in days
+     * Monthly ROI percentage
+
+4. Show before/after comparison:
+   - Side-by-side metrics
+   - Visual indicator (arrows showing improvement)
+   - Color coding (green for improved, red for no change)
+
+5. Allow multiple scenarios to be compared
+6. Include "Apply Scenario" button that updates the dashboard temporarily to show projected state
+7. "Reset" button to return to actual data
+
+Visual design:
+- Clean modal with form on left, results on right
+- Use cards for before/after comparison
+- Interactive sliders for custom adjustments
+- Export button to save scenario as PDF
+
+Add a "Scenario Planner" button in the DashboardLayout header or as a quick action in the sidebar.
+```
+
+---
+
+## 📋 TASK 5: ADD "COMPARE PERIODS" FEATURE
+
+### Prompt for Copilot:
+
+```
+Create a new component "PeriodComparison.tsx" in src/components/ that allows comparing performance across different time ranges.
+
+Requirements:
+1. Accept props: 
+   - primaryTimeRange: TimeRange
+   - comparisonTimeRange: TimeRange (optional)
+   - showComparison: boolean
+
+2. Create a comparison view showing:
+   - Number of bottlenecks (primary vs comparison period)
+   - Average risk score (primary vs comparison)
+   - Total cost impact (primary vs comparison)
+   - Processes that improved (list)
+   - Processes that worsened (list)
+   - Overall trend (improving/stable/declining)
+
+3. Add to DashboardLayout state:
+   - comparisonMode: boolean (toggle on/off)
+   - comparisonTimeRange: TimeRange
+
+4. Visual design:
+   - Split view or side-by-side cards
+   - Use green (↑) for improvements, red (↓) for declines
+   - Show percentage change for each metric
+   - Include mini trend chart (sparkline) for each metric
+   - Summary badge: "33% Improvement" or "Declined 15%"
+
+5. Add controls to header:
+   - Toggle switch: "Enable Comparison"
+   - Dropdown: "Compare with: [Last 1h | Last 6h | Last 24h | Last 7d]"
+
+6. Integrate comparison data into:
+   - Chart: show both periods as overlapping/stacked bars
+   - Insights Panel: highlight changes from comparison period
+   - Cost Impact: show delta between periods
+
+7. Add export functionality:
+   - "Export Comparison Report" button
+   - Generate JSON or CSV with both periods' data
+
+Implementation steps:
+1. Update DashboardLayout to add comparison state and controls
+2. Create PeriodComparison component with comparison logic
+3. Modify ProcessTimelineChart to optionally show comparison data
+4. Update InsightPanel to show trend indicators when comparison is active
+5. Style with consistent dark theme and clear visual hierarchy
+
+Add the comparison toggle in the top-right of the dashboard header, next to the monitoring status indicator.
+```
+
+---
+
+## 🎯 IMPLEMENTATION SEQUENCE
+
+### Recommended Order:
+
+1. **START WITH TASK 2** (Recommended Actions) - Easiest, high impact
+2. **THEN TASK 1** (Cost Impact) - Adds quantifiable value
+3. **THEN TASK 5** (Compare Periods) - Builds on existing time range logic
+4. **THEN TASK 3** (Root Cause Analysis) - More complex logic
+5. **FINALLY TASK 4** (Scenario Planner) - Most complex, requires all others
+
+### Time Estimates:
+- Task 2: 1-2 hours
+- Task 1: 1-2 hours
+- Task 5: 2-3 hours
+- Task 3: 2-3 hours
+- Task 4: 3-4 hours
+
+**Total: 9-14 hours spread over 2-3 days**
+
+---
+
+## 💡 GENERAL GUIDELINES FOR ALL TASKS
+
+When implementing with Copilot, always ensure:
+
+1. **Type Safety**: Use TypeScript interfaces for all props and data structures
+2. **Consistent Styling**: Match the existing dark theme (gray-800, blue-600, etc.)
+3. **Responsive Design**: Components should work on mobile and desktop
+4. **Error Handling**: Handle edge cases (no data, invalid inputs)
+5. **Performance**: Avoid unnecessary re-renders, use useMemo/useCallback where appropriate
+6. **Accessibility**: Add aria-labels, keyboard navigation support
+7. **Documentation**: Add comments explaining complex calculations
+8. **Testing**: Log output to console during development for verification
+
+---
+
+## 🔧 HELPER PROMPT (Use this after each task)
+
+```
+Review the component I just created and:
+1. Check for any TypeScript errors
+2. Ensure it matches the existing dark theme styling
+3. Verify it's responsive (works on mobile)
+4. Add proper error handling for edge cases
+5. Optimize any performance issues
+6. Add helpful comments for complex logic
+7. Ensure it integrates smoothly with existing components
+
+Then show me where to add the import and how to integrate it into the main dashboard.
+```
+
+---
+
+## 📝 QUICK START PROMPT (Use this first)
+
+```
+I'm enhancing my AI-powered bottleneck detection dashboard with 5 new features:
+1. Cost Impact Analysis
+2. Recommended Actions
+3. Root Cause Analysis
+4. Scenario Planner
+5. Period Comparison
+
+The existing codebase is:
+- Next.js 14 with TypeScript
+- React components using hooks
+- TailwindCSS for styling
+- Dark theme (gray-800/900 background)
+- Data structure: ProcessStep interface with id, name, durations, status
+- Time ranges: 1h, 6h, 24h, 7d
+
+I'll provide specific prompts for each feature. Please maintain consistent styling and follow existing patterns in the codebase.
+
+Ready to start with Task 1: Cost Impact Section?
+```
+
+---
+
+## 🎯 LOCATION OF THIS FILE
+
+File saved at:
+**c:\coding\aiprocessbottleneckdetector1\COPILOT_PROMPTS.txt**
+
+Good luck with implementation! Start with Task 2 (easiest) to build momentum! 🚀
