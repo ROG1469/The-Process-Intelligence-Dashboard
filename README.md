@@ -1,6 +1,6 @@
-# 🚀 AI-Powered Warehouse Bottleneck Detector
+# 🚀 Process Intelligence Hub
 
-An intelligent dashboard that helps operations managers identify, analyze, and resolve warehouse process bottlenecks in real-time.
+An intelligent dashboard that helps operations managers monitor processes, detect bottlenecks, and implement AI-powered optimization strategies in real-time.
 
 ![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)

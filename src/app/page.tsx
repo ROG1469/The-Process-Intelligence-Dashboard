@@ -4,10 +4,10 @@ export default function Home() {
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <div className="text-center sm:text-left">
           <h1 className="text-4xl font-bold mb-4 text-white">
-            AI Bottleneck Detector
+            Process Intelligence Hub
           </h1>
           <p className="text-lg text-gray-300 mb-8 max-w-2xl">
-            Identify and analyze bottlenecks in your AI processes with advanced monitoring and optimization tools.
+            Real-time process monitoring, bottleneck detection, and AI-powered recommendations to optimize warehouse operations.
           </p>
         </div>
 

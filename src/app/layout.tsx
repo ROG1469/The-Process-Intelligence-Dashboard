@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "AI Bottleneck Detector",
-  description: "Detect and analyze bottlenecks in AI processes",
+  title: "Process Intelligence Hub",
+  description: "Real-time process monitoring and AI-powered optimization for warehouse operations",
 };
 
 export default function RootLayout({

@@ -104,7 +104,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Header */}
       <header className="bg-gray-900/80 backdrop-blur-sm border-b border-gray-700/50 px-6 py-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-white">AI Bottleneck Detector</h1>
+          <h1 className="text-2xl font-bold text-white">Process Intelligence Hub</h1>
           <div className="flex items-center space-x-4">
             <div className="text-sm text-gray-300">Last updated: 2 minutes ago</div>
             <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
