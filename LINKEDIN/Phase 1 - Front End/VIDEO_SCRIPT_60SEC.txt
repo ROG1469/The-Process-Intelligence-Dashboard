@@ -1,0 +1,242 @@
+========================================
+VIDEO SCRIPT - PROCESS INTELLIGENCE HUB
+Duration: 60 seconds (Feature Walkthrough)
+========================================
+
+APPROACH:
+- Focus on FEATURES (not filters/toggles)
+- Show: Homepage → Chart → AI Insights → Recommendations → Scenario Planner → Period Comparison
+- End with: Your strategic decision-making role
+- Message: "AI suggests. I decide. Not replaced. Augmented."
+
+========================================
+
+[0:00-0:05] HOME SCREEN
+---------------------------
+Visual: Show landing page with "Process Intelligence Hub" title
+
+Script:
+"Hi everyone This is my creation called the Process Intelligence Hub - let me walk you through how it works."
+
+
+[0:06-0:10] NAVIGATE TO DASHBOARD
+---------------------------
+Visual: Click "Open Dashboard" button, transition to dashboard
+
+Script:
+"From the homepage, we enter the main dashboard."
+
+
+[0:11-0:18] PERFORMANCE CHART
+---------------------------
+Visual: Point to the chart, show minute-by-minute data with peaks and valleys
+
+Script:
+"First, the performance chart, which is the ceter attraction. This shows real-time data for all 6 warehouse processes from receiving to dispatch. Each spike indicates a delay."
+
+
+[0:19-0:28] AI INSIGHTS SECTION
+---------------------------
+Visual: Scroll down to AI Insights panel, show the bottleneck cards
+
+Script:
+"Next, the AI Insights section. It automatically detects bottlenecks and shows the financial impact. See this? $810 per hour. For a process engineer, this means I know exactly where to focus my attention."
+
+
+[0:29-0:38] RECOMMENDATIONS
+---------------------------
+Visual: Expand one bottleneck card to reveal recommendations with ROI
+
+Script:
+"Each bottleneck comes with AI-generated recommendations. Add 2 workers to save $1,800 daily. Or implement cross-docking to save $2,400. These are my options."
+
+
+[0:39-0:46] SCENARIO PLANNER
+---------------------------
+Visual: Click to open Scenario Planner, adjust improvement sliders
+
+Script:
+"The Scenario Planner lets me test different improvements. What if I speed up receiving by 20%? What's the total impact?"
+
+
+[0:47-0:52] PERIOD COMPARISON
+---------------------------
+Visual: Show Period Comparison section with trend indicators
+
+Script:
+"Period Comparison tracks what's working. Current performance versus last week. Are we improving or regressing?"
+
+
+[0:53-1:00] CLOSING - YOUR STRATEGIC ROLE
+---------------------------
+Visual: Zoom out to show full dashboard, then slow fade
+
+Script:
+"Now, I decide which solution fits our strategy, budget, and timing. AI suggests. I decide. I test scenarios, evaluate tradeoffs, and pick what works for the business. That's being AI-enabled. Not replaced. Augmented."
+
+========================================
+WHAT TO SHOW ON SCREEN (Visual Guide)
+========================================
+
+HOMEPAGE (5 seconds):
+- Show title "Process Intelligence Hub"
+- Show tagline clearly
+- Cursor ready on "Open Dashboard" button
+
+DASHBOARD TRANSITION (4 seconds):
+- Click "Open Dashboard"
+- Smooth transition to dashboard view
+- Let dashboard fully load
+
+PERFORMANCE CHART (7 seconds):
+- Full view of the chart showing all processes
+- Hover cursor over a spike/peak to emphasize delays
+- Show the color-coded processes clearly
+
+AI INSIGHTS (9 seconds):
+- Scroll slowly to reveal bottleneck cards
+- Pause on one card showing "$810/hr" cost impact
+- Show the severity badge (Critical/High)
+
+RECOMMENDATIONS (9 seconds):
+- Click to expand ONE recommendation card
+- Show 2-3 recommendations with ROI numbers visible
+- Highlight the "$1,800/day" savings clearly
+
+SCENARIO PLANNER (7 seconds):
+- Click to open Scenario Planner
+- Adjust 1-2 process improvement sliders
+- Show projected impact numbers updating
+
+PERIOD COMPARISON (5 seconds):
+- Show the comparison panel
+- Point to trend arrows (up/down indicators)
+- Show percentage changes
+
+CLOSING (7 seconds):
+- Slowly zoom out to show entire dashboard
+- Hold on full view for 3 seconds
+- Fade to end card with GitHub link
+
+========================================
+FILMING TIPS
+========================================
+
+1. SCREEN RECORDING:
+   - Use OBS Studio (free) or Windows Game Bar (Win+G)
+   - Record at 1080p, 60fps
+   - Keep cursor movements smooth and purposeful
+   - Practice the walkthrough 2-3 times before recording
+
+2. EXACT TIMING BREAKDOWN:
+   - 5 sec = Home screen
+   - 4 sec = Navigate to dashboard
+   - 7 sec = Performance chart
+   - 9 sec = AI Insights section
+   - 9 sec = Recommendations
+   - 7 sec = Scenario Planner
+   - 5 sec = Period Comparison
+   - 7 sec = Strategic decision-making message
+   TOTAL = 53 seconds (7 seconds buffer for pacing)
+
+3. PACING STRATEGY:
+   - Speak at conversational pace during features (0-52s)
+   - Slow down slightly for the closing message (53-60s)
+   - Pause briefly between sections (0.5 seconds)
+   - Your final line should be emphatic: "Not replaced. Augmented."
+
+4. WHAT TO SHOW:
+   ✅ Homepage → Dashboard button click
+   ✅ Chart with visible spikes/delays
+   ✅ ONE bottleneck card with $ cost
+   ✅ ONE expanded recommendation showing ROI
+   ✅ Scenario sliders moving
+   ✅ Period comparison with clear trends
+   ✅ Full dashboard view at end
+
+5. WHAT TO SKIP:
+   ❌ Filters and toggle switches
+   ❌ Severity selectors
+   ❌ Time range dropdowns
+   ❌ Resizing panels
+   ❌ Multiple bottleneck cards (just show ONE)
+   ❌ Technical implementation details
+
+6. VOICE OVER:
+   - Record audio separately for better quality
+   - Use script but sound natural (not reading)
+   - Emphasize key numbers: "$810/hour", "$1,800/day", "20%"
+   - End with confidence: "AI suggests. I decide."
+
+7. BACKGROUND MUSIC:
+   - Optional: Subtle instrumental at 15-20% volume
+   - Keep it minimal - your voice is the focus
+   - Fade out music at 50s to emphasize closing message
+
+========================================
+POST-PRODUCTION CHECKLIST
+========================================
+
+[ ] Add text overlays for key numbers ($810/hr, $1,800/day)
+[ ] Highlight cursor or add zoom effect on important clicks
+[ ] Add subtle transitions between sections (1-2 frames)
+[ ] Ensure audio levels are consistent throughout
+[ ] Export at 1080p MP4, H.264 codec
+[ ] Test on mobile before posting (LinkedIn mobile crop)
+[ ] Add captions/subtitles (80% watch without sound)
+
+========================================
+KEY TAKEAWAYS FOR VIEWERS
+========================================
+
+After watching, viewers should understand:
+
+1. WHAT IT DOES:
+   - Monitors 6 warehouse processes in real-time (chart)
+   - Detects bottlenecks automatically (AI Insights)
+   - Calculates financial impact ($810/hr)
+   - Suggests solutions with ROI (recommendations)
+   - Tests scenarios (Scenario Planner)
+   - Tracks improvements (Period Comparison)
+
+2. YOUR VALUE AS A PROCESS ENGINEER:
+   - AI handles data analysis (faster)
+   - You make strategic decisions (smarter)
+   - You evaluate: strategy fit, budget, timing, tradeoffs
+   - You're not being replaced - you're being augmented
+
+3. THE CORE MESSAGE:
+   "AI suggests. I decide. I test scenarios, evaluate tradeoffs, 
+   and pick what works for the business. That's being AI-enabled. 
+   Not replaced. Augmented."
+
+========================================
+RECORDING CHECKLIST
+========================================
+
+BEFORE RECORDING:
+[ ] Dashboard has visible bottlenecks (multiple Critical/High)
+[ ] Clear data showing in chart with peaks
+[ ] Practice walkthrough 2-3 times
+[ ] Script memorized (but sound natural)
+[ ] Screen resolution set to 1920x1080
+[ ] Close unnecessary browser tabs/windows
+[ ] Turn off notifications (DND mode)
+
+DURING RECORDING:
+[ ] Start on homepage
+[ ] Smooth cursor movements (not jerky)
+[ ] Pause briefly at each section
+[ ] Speak clearly at conversational pace
+[ ] Emphasize key numbers ($810/hr, $1,800/day)
+[ ] End with strong closing delivery
+
+AFTER RECORDING:
+[ ] Add text overlays for key numbers
+[ ] Add subtle zoom-in on important sections
+[ ] Add captions/subtitles (accessibility + silent viewing)
+[ ] Add GitHub link in end card
+[ ] Export at 1080p MP4
+[ ] Test on mobile (LinkedIn crops differently)
+
+========================================

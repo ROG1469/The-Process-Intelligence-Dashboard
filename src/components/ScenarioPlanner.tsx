@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { getProcessDataByTimeRange, TimeRange } from '@/data/processData';
-import { analyzeProcesses } from '@/aiLogic';
+import { useState, useMemo, useEffect } from 'react';
+import { TimeRange } from '@/data/processData';
+import { fetchProcesses, mapTimeRange } from '@/services/api';
 
 interface ScenarioPlannerProps {
   selectedProcess: string;
@@ -57,22 +57,76 @@ const SCENARIOS: Scenario[] = [
 
 export default function ScenarioPlanner({ selectedProcess, timeRange }: ScenarioPlannerProps) {
   const [selectedScenarios, setSelectedScenarios] = useState<number[]>([]);
+  const [bottleneckCount, setBottleneckCount] = useState(0);
+  const [avgDelay, setAvgDelay] = useState(0);
   
-  const currentPerformance = useMemo(() => {
-    const allProcessData = getProcessDataByTimeRange(timeRange);
-    const filteredData = selectedProcess === 'all' 
-      ? allProcessData 
-      : allProcessData.filter(step => step.id === selectedProcess);
-    
-    const analyses = analyzeProcesses(filteredData);
-    const bottlenecks = analyses.filter(a => a.isPotentialBottleneck);
-    
-    const avgDelay = bottlenecks.reduce((sum, b) => sum + b.delayPercentage, 0) / (bottlenecks.length || 1);
-    return {
-      avgDelay: Math.round(avgDelay),
-      bottleneckCount: bottlenecks.length
+  // Fetch and calculate bottlenecks using the same logic as InsightPanel
+  useEffect(() => {
+    const fetchBottlenecks = async () => {
+      try {
+        const backendRange = mapTimeRange(timeRange);
+        const response = await fetchProcesses({ range: backendRange });
+        
+        const bottlenecks = (response.data || [])
+          .map((process: any) => {
+            const delayPercentage = process.average_duration > 0
+              ? ((process.actual_duration - process.average_duration) / process.average_duration) * 100
+              : 0;
+            
+            const delayTime = process.actual_duration - process.average_duration;
+            
+            // Calculate risk score (same as InsightPanel)
+            let riskScore = 0;
+            const absDelayPercent = Math.abs(delayPercentage);
+            if (absDelayPercent >= 50) riskScore += 50;
+            else if (absDelayPercent >= 30) riskScore += 40;
+            else if (absDelayPercent >= 20) riskScore += 30;
+            else if (absDelayPercent >= 10) riskScore += 20;
+            else riskScore += absDelayPercent;
+            
+            const status = String(process.status);
+            if (status === 'critical') riskScore += 40;
+            else if (status === 'failed') riskScore += 35;
+            else if (status === 'delayed') riskScore += 20;
+            else if (status === 'in-progress') riskScore += 10;
+            
+            const delayMinutes = delayTime / 60;
+            if (delayMinutes >= 60) riskScore += 10;
+            else if (delayMinutes >= 30) riskScore += 7;
+            else if (delayMinutes >= 15) riskScore += 5;
+            else if (delayMinutes > 0) riskScore += 3;
+            
+            riskScore = Math.min(Math.round(riskScore), 100);
+            
+            return {
+              processName: process.name,
+              delayPercentage,
+              riskScore,
+              isBottleneck: riskScore >= 40 // Medium risk or higher
+            };
+          })
+          .filter((p: any) => {
+            if (selectedProcess === 'all') return p.isBottleneck;
+            return p.isBottleneck && p.processName.toLowerCase().includes(selectedProcess.toLowerCase());
+          });
+        
+        const avgDelayCalc = bottlenecks.reduce((sum: number, b: any) => sum + b.delayPercentage, 0) / (bottlenecks.length || 1);
+        setBottleneckCount(bottlenecks.length);
+        setAvgDelay(Math.round(avgDelayCalc));
+      } catch (error) {
+        console.error('Failed to fetch bottlenecks for scenario planner:', error);
+        setBottleneckCount(0);
+        setAvgDelay(0);
+      }
     };
+    
+    fetchBottlenecks();
   }, [selectedProcess, timeRange]);
+  
+  const currentPerformance = useMemo(() => ({
+    avgDelay,
+    bottleneckCount
+  }), [avgDelay, bottleneckCount]);
   
   const projectedImpact = useMemo(() => {
     // Calculate compound improvement

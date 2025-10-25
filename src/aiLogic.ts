@@ -10,6 +10,7 @@ export interface RiskAnalysis {
   averageDuration: number;
   actualDuration: number;
   delayTime: number;
+  aiMessage?: string | null; // AI-generated insight message from backend
 }
 
 /**

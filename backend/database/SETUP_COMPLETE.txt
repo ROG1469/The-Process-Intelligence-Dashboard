@@ -1,0 +1,241 @@
+# 🎯 DATABASE SETUP - COMPLETE INSTRUCTIONS
+
+## 📋 Quick Start (3 Steps)
+
+### Step 1: Run SQL in Supabase
+1. Open [Supabase Dashboard](https://app.supabase.com)
+2. Go to **SQL Editor** → **New Query**
+3. Copy & paste content from `backend/database/schema.sql`
+4. Click **RUN** (or Ctrl+Enter)
+5. Wait for success message
+
+### Step 2: Verify in Supabase Dashboard
+1. Go to **Table Editor**
+2. Check tables exist:
+   - ✅ `process_steps` (15 rows)
+   - ✅ `insights` (8 rows)
+3. Click each table to view the data
+
+### Step 3: Test from Backend (Optional)
+```bash
+cd C:\coding\aiprocessbottleneckdetector1\backend
+node database/testConnection.js
+```
+
+Expected output: `✅ ALL TESTS PASSED!`
+
+---
+
+## 📁 Files Created
+
+```
+backend/database/
+├── schema.sql              # Main database schema (RUN THIS FIRST)
+├── verify.sql              # SQL verification queries
+├── testConnection.js       # Node.js test script
+├── DATABASE_SETUP.md       # Detailed setup guide
+└── SETUP_COMPLETE.txt      # This file
+```
+
+---
+
+## 📊 What Gets Created
+
+### Tables
+
+**1. process_steps** (15 sample records)
+- Material Prep: 3 entries (1 delayed)
+- Assembly: 3 entries (1 delayed)
+- Quality Check: 3 entries (1 delayed)
+- Packaging: 3 entries (1 delayed)
+- Dispatch: 3 entries (1 delayed)
+
+**2. insights** (8 sample records)
+- 5 process-specific insights (for delayed processes)
+- 3 general workflow insights
+- Risk scores: 58-92
+- Actionable recommendations
+
+### Indexes
+- Timestamp-based queries (fast sorting)
+- Status-based queries (filter by completed/delayed)
+- Risk score queries (high-priority insights)
+
+### Security
+- Row Level Security (RLS) enabled
+- Authenticated users can read/write
+- Unauthenticated users blocked
+
+---
+
+## 🧪 Verification
+
+### In Supabase Dashboard:
+
+1. **Table Editor** → `process_steps`
+   - Should see 15 rows
+   - Mix of completed, delayed, in-progress statuses
+   - Recent timestamps
+
+2. **Table Editor** → `insights`
+   - Should see 8 rows
+   - Risk scores from 58 to 92
+   - Recommendations text
+
+3. **SQL Editor** → Run verification queries from `verify.sql`
+
+### From Backend:
+
+```bash
+node database/testConnection.js
+```
+
+Should output:
+```
+✅ Found 15 process steps
+✅ Found 8 insights
+✅ Found 5 delayed processes
+✅ Found 5 high-risk insights
+✅ ALL TESTS PASSED!
+```
+
+---
+
+## 📖 Sample Data Overview
+
+### Process Steps by Status:
+- ✅ **Completed:** 9 processes (on time or under)
+- ⚠️ **Delayed:** 5 processes (over expected time)
+- 🔄 **In Progress:** 2 processes (currently running)
+
+### Delays by Process:
+- Material Prep: +150s (50% over)
+- Assembly: +120s (20% over)
+- Quality Check: +60s (33% over)
+- Packaging: +120s (50% over)
+- Dispatch: +120s (29% over)
+
+### Risk Scores:
+- 🔴 Critical (90+): 1 insight (Packaging - 92)
+- 🟠 High (80-89): 2 insights (Assembly - 85, Dispatch - 80)
+- 🟡 Medium (70-79): 2 insights (Material Prep - 75, Workflow - 72)
+- 🟢 Low (<70): 3 insights (Quality Check - 68, etc.)
+
+---
+
+## 🔗 Database Schema Diagram
+
+```
+┌─────────────────────────────────────┐
+│        process_steps                │
+├─────────────────────────────────────┤
+│ id                  UUID (PK)       │
+│ name                VARCHAR(255)    │
+│ average_duration    INTEGER         │
+│ actual_duration     INTEGER         │
+│ status              VARCHAR(50)     │
+│ timestamp           TIMESTAMPTZ     │
+│ created_at          TIMESTAMPTZ     │
+│ updated_at          TIMESTAMPTZ     │
+└─────────────────────────────────────┘
+                │
+                │ 1:N
+                ▼
+┌─────────────────────────────────────┐
+│          insights                   │
+├─────────────────────────────────────┤
+│ id                  UUID (PK)       │
+│ process_id          UUID (FK)       │
+│ risk_score          INTEGER         │
+│ recommendation      TEXT            │
+│ timestamp           TIMESTAMPTZ     │
+│ created_at          TIMESTAMPTZ     │
+└─────────────────────────────────────┘
+```
+
+---
+
+## 🚀 Next Steps
+
+Once database is verified:
+
+### Immediate Next Steps:
+1. ✅ Database schema created
+2. ✅ Sample data seeded
+3. ✅ Authentication endpoints ready
+4. ⏭️ **Next:** Create API endpoints to fetch this data
+
+### Stage 2.1.4: Process Data API Endpoints
+Create endpoints in `backend/routes/processes.js`:
+- `GET /api/processes` - Get all process steps
+- `GET /api/processes/:id` - Get specific process
+- `GET /api/bottlenecks` - Get delayed processes
+- `GET /api/insights` - Get AI insights
+- `POST /api/processes` - Add new process step
+
+### Stage 2.1.5: Connect Frontend
+Update dashboard to:
+- Fetch real data from API instead of mock data
+- Display actual process performance
+- Show real insights and recommendations
+- Add real-time updates with Supabase subscriptions
+
+---
+
+## ✅ Success Checklist
+
+Before moving to API implementation:
+
+- [ ] SQL executed successfully in Supabase
+- [ ] No error messages in SQL Editor
+- [ ] `process_steps` table has 15 rows
+- [ ] `insights` table has 8 rows
+- [ ] Can view data in Table Editor
+- [ ] At least 5 processes show "delayed" status
+- [ ] Risk scores range from 58-92
+- [ ] RLS policies are enabled
+- [ ] (Optional) `node database/testConnection.js` passes
+
+---
+
+## 🆘 Troubleshooting
+
+### Error: "relation already exists"
+- Tables already created
+- Run this to drop and recreate:
+```sql
+DROP TABLE IF EXISTS insights CASCADE;
+DROP TABLE IF EXISTS process_steps CASCADE;
+-- Then run schema.sql again
+```
+
+### Error: "permission denied"
+- Check you're logged into correct Supabase project
+- Verify you have admin access
+
+### Zero rows after seeding
+- Check the INSERT statements ran
+- Look for error messages in SQL Editor output
+
+### Backend test script fails
+- Ensure backend server has correct `.env` credentials
+- Run `npm install` in backend folder
+- Check Supabase URL and API key are correct
+
+---
+
+## 📞 Support
+
+If you encounter issues:
+
+1. Check Supabase Dashboard → **Logs** for errors
+2. Verify your project URL matches `.env` file
+3. Ensure API key is the `anon` key (not `service_role`)
+4. Check RLS policies are enabled
+5. Try verification queries from `verify.sql`
+
+---
+
+**Status:** 🟢 READY FOR API IMPLEMENTATION
+
+Once you see the success message and verify the data, you're ready to proceed! 🎉

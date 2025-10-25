@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { analyzeProcesses, type RiskAnalysis } from '@/aiLogic';
-import { getProcessDataByTimeRange, TimeRange } from '@/data/processData';
+import { type RiskAnalysis } from '@/aiLogic';
+import { TimeRange } from '@/data/processData';
+import { fetchHighRiskInsights, fetchAIInsightMessages, mapTimeRange, transformInsightForFrontend, fetchProcesses } from '@/services/api';
 import ScenarioPlanner from './ScenarioPlanner';
 import PeriodComparison from './PeriodComparison';
 
@@ -227,13 +228,6 @@ const InsightCard = ({ analysis, index }: InsightCardProps) => {
           badge: 'bg-red-500/20 text-red-300'
         };
       case 'High':
-        return {
-          bg: 'bg-orange-900/20',
-          border: 'border-orange-500/30',
-          text: 'text-orange-300',
-          icon: 'text-orange-400',
-          badge: 'bg-orange-500/20 text-orange-300'
-        };
       case 'Medium':
         return {
           bg: 'bg-yellow-900/20',
@@ -242,13 +236,21 @@ const InsightCard = ({ analysis, index }: InsightCardProps) => {
           icon: 'text-yellow-400',
           badge: 'bg-yellow-500/20 text-yellow-300'
         };
+      case 'Low':
+        return {
+          bg: 'bg-green-900/20',
+          border: 'border-green-500/30',
+          text: 'text-green-300',
+          icon: 'text-green-400',
+          badge: 'bg-green-500/20 text-green-300'
+        };
       default:
         return {
-          bg: 'bg-blue-900/20',
-          border: 'border-blue-500/30',
-          text: 'text-blue-300',
-          icon: 'text-blue-400',
-          badge: 'bg-blue-500/20 text-blue-300'
+          bg: 'bg-gray-900/20',
+          border: 'border-gray-500/30',
+          text: 'text-gray-300',
+          icon: 'text-gray-400',
+          badge: 'bg-gray-500/20 text-gray-300'
         };
     }
   };
@@ -274,10 +276,12 @@ const InsightCard = ({ analysis, index }: InsightCardProps) => {
         </span>
       </div>
 
-      {/* AI Insight Message */}
-      <p className={`text-xs ${colors.text} mb-3 leading-relaxed`}>
-        {generateInsightMessage(analysis)}
-      </p>
+      {/* AI Insight Message - Use backend message if available, otherwise generate */}
+      <div className={`bg-gradient-to-r ${colors.bg} border ${colors.border} rounded-lg p-3 mb-3`}>
+        <p className={`text-xs ${colors.text} leading-relaxed font-medium`}>
+          💬 {analysis.aiMessage || generateInsightMessage(analysis)}
+        </p>
+      </div>
 
       {/* Metrics */}
       <div className="grid grid-cols-3 gap-2 text-xs mb-2">
@@ -383,87 +387,283 @@ export default function InsightPanel({
 }: InsightPanelProps) {
   const [analyses, setAnalyses] = useState<RiskAnalysis[]>([]);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Unfiltered stats for accurate totals
+  const [unfilteredStats, setUnfilteredStats] = useState({
+    critical: 0,
+    high: 0,
+    medium: 0,
+    low: 0,
+    total: 0
+  });
+  
+  // AI Insight Messages state
+  const [aiMessages, setAiMessages] = useState<string[]>([]);
+  const [aiMessagesLoading, setAiMessagesLoading] = useState(false);
   
   // Collapsible section states
   const [showScenarios, setShowScenarios] = useState(false);
 
   useEffect(() => {
-    // Analyze processes and update insights
-    const updateInsights = () => {
-      // Get data based on selected time range
-      const allProcessData = getProcessDataByTimeRange(timeRange);
-      
-      // Filter data based on selected process
-      const filteredData = selectedProcess === 'all' 
-        ? allProcessData 
-        : allProcessData.filter(step => step.id === selectedProcess);
-      
-      const riskAnalyses = analyzeProcesses(filteredData);
-      
-      // Apply performance threshold filter
-      const thresholdFiltered = riskAnalyses.filter(
-        analysis => analysis.riskScore >= performanceThreshold
-      );
-      
-      // Apply severity filters
-      const severityFiltered = thresholdFiltered.filter(analysis => {
-        if (analysis.riskLevel === 'Critical') return severityFilters.Critical;
-        if (analysis.riskLevel === 'High') return severityFilters.High;
-        if (analysis.riskLevel === 'Medium') return severityFilters.Medium;
-        if (analysis.riskLevel === 'Low') return severityFilters.Low;
-        return true;
-      });
-      
-      setAnalyses(severityFiltered);
-      setLastUpdate(new Date());
+    // Fetch insights from backend API
+    const updateInsights = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Map frontend time range to backend format
+        const backendRange = mapTimeRange(timeRange);
+        
+        // Fetch AI insight messages with details
+        setAiMessagesLoading(true);
+        let aiInsightsDetails: any[] = [];
+        try {
+          const messagesResult = await fetchAIInsightMessages(backendRange, performanceThreshold);
+          setAiMessages(messagesResult.messages || []);
+          aiInsightsDetails = messagesResult.details || [];
+        } catch (msgError) {
+          console.warn('Failed to load AI messages:', msgError);
+          setAiMessages(['⚠️ Unable to load AI insights']);
+        } finally {
+          setAiMessagesLoading(false);
+        }
+        
+        // Fetch process data and calculate risk scores on frontend
+        const response = await fetchProcesses({ range: backendRange });
+        
+        console.log('💡 Process data received:', response);
+        console.log('💡 AI insights details:', aiInsightsDetails);
+        
+        // Create a map of process name to AI message
+        const aiMessageMap = new Map(
+          aiInsightsDetails.map(detail => [detail.processName, detail.message])
+        );
+        
+        // Transform processes to RiskAnalysis format with proper risk calculation
+        const transformedInsights: RiskAnalysis[] = (response.data || []).map((process: any) => {
+          const delayPercentage = process.average_duration > 0
+            ? ((process.actual_duration - process.average_duration) / process.average_duration) * 100
+            : 0;
+          
+          const delayTime = process.actual_duration - process.average_duration;
+          
+          // Calculate risk score (same algorithm as backend)
+          let riskScore = 0;
+          const absDelayPercent = Math.abs(delayPercentage);
+          if (absDelayPercent >= 50) riskScore += 50;
+          else if (absDelayPercent >= 30) riskScore += 40;
+          else if (absDelayPercent >= 20) riskScore += 30;
+          else if (absDelayPercent >= 10) riskScore += 20;
+          else riskScore += absDelayPercent;
+          
+          const status = String(process.status);
+          if (status === 'critical') riskScore += 40;
+          else if (status === 'failed') riskScore += 35;
+          else if (status === 'delayed') riskScore += 20;
+          else if (status === 'in-progress') riskScore += 10;
+          
+          const delayMinutes = delayTime / 60;
+          if (delayMinutes >= 60) riskScore += 10;
+          else if (delayMinutes >= 30) riskScore += 7;
+          else if (delayMinutes >= 15) riskScore += 5;
+          else if (delayMinutes > 0) riskScore += 3;
+          
+          riskScore = Math.min(Math.round(riskScore), 100);
+          
+          // Generate recommendation based on risk score
+          const generateRecommendation = (score: number, name: string) => {
+            if (score >= 80) return `🔴 CRITICAL: Immediate action required for ${name}. Deploy additional resources and investigate root cause.`;
+            if (score >= 60) return `⚠️ WARNING: ${name} needs attention. Consider reallocation of resources or process optimization.`;
+            if (score >= 40) return `📊 MONITOR: ${name} showing early warning signs. Continue monitoring and prepare contingency plans.`;
+            return `✅ ${name} operating within normal parameters.`;
+          };
+          
+          // Calculate estimated impact
+          const calculateEstimatedImpact = (delayPercent: number) => {
+            const absDelay = Math.abs(delayPercent);
+            if (absDelay >= 50) return 'Very High - significant productivity loss';
+            if (absDelay >= 30) return 'High - noticeable impact on throughput';
+            if (absDelay >= 20) return 'Medium - moderate performance degradation';
+            if (absDelay >= 10) return 'Low - minor impact on schedule';
+            return 'Minimal - within acceptable variance';
+          };
+          
+          // Get AI-generated message for this process (if available)
+          const aiMessage = aiMessageMap.get(process.name) || null;
+          
+          return {
+            processName: process.name,
+            processId: process.id,
+            delayPercentage: Math.round(delayPercentage),
+            riskScore,
+            riskLevel: getRiskLevel(riskScore),
+            recommendation: generateRecommendation(riskScore, process.name),
+            isPotentialBottleneck: riskScore >= 60,
+            averageDuration: process.average_duration,
+            actualDuration: process.actual_duration,
+            delayTime,
+            estimatedImpact: calculateEstimatedImpact(delayPercentage),
+            aiMessage // Add AI message to the analysis object
+          };
+        });
+        
+        // Calculate UNFILTERED stats (for accurate totals) BEFORE applying filters
+        const unfilteredStats = {
+          critical: transformedInsights.filter(a => a.riskLevel === 'Critical').length,
+          high: transformedInsights.filter(a => a.riskLevel === 'High').length,
+          medium: transformedInsights.filter(a => a.riskLevel === 'Medium').length,
+          low: transformedInsights.filter(a => a.riskLevel === 'Low').length,
+          total: transformedInsights.length
+        };
+        
+        // Store unfiltered stats in state for stats display
+        setUnfilteredStats(unfilteredStats);
+        
+        // Filter by selected process
+        const processFiltered = selectedProcess === 'all'
+          ? transformedInsights
+          : transformedInsights.filter(insight => 
+              insight.processName.toLowerCase().includes(selectedProcess.toLowerCase()) ||
+              selectedProcess.toLowerCase().includes(insight.processName.toLowerCase())
+            );
+        
+        // Apply performance threshold filter (risk score)
+        const thresholdFiltered = processFiltered.filter(
+          analysis => analysis.riskScore >= performanceThreshold
+        );
+        
+        // Apply severity filters
+        const severityFiltered = thresholdFiltered.filter(analysis => {
+          if (analysis.riskLevel === 'Critical') return severityFilters.Critical;
+          if (analysis.riskLevel === 'High') return severityFilters.High;
+          if (analysis.riskLevel === 'Medium') return severityFilters.Medium;
+          if (analysis.riskLevel === 'Low') return severityFilters.Low;
+          return true;
+        });
+        
+        // Filter to show only delayed/critical processes (not healthy/completed ones)
+        const bottlenecksOnly = severityFiltered.filter(analysis => 
+          analysis.riskLevel === 'Critical' || 
+          analysis.riskLevel === 'High' || 
+          analysis.riskLevel === 'Medium'
+        );
+        
+        // Sort by priority: Critical first, then High, then Medium, then by risk score descending
+        const sortedAnalyses = bottlenecksOnly.sort((a, b) => {
+          const priorityOrder = { 'Critical': 0, 'High': 1, 'Medium': 2, 'Low': 3 };
+          const priorityDiff = priorityOrder[a.riskLevel] - priorityOrder[b.riskLevel];
+          if (priorityDiff !== 0) return priorityDiff;
+          return b.riskScore - a.riskScore; // Within same level, higher risk first
+        });
+        
+        setAnalyses(sortedAnalyses);
+        setLastUpdate(new Date());
+      } catch (err) {
+        console.error('Failed to load insights:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load insights');
+        setAnalyses([]);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    // Initial analysis
+    // Initial load
     updateInsights();
 
-    // Set up interval to check for data changes (simulating real-time updates)
+    // Set up interval for real-time updates (every 60 seconds)
     const interval = setInterval(() => {
       updateInsights();
-    }, 5000); // Check every 5 seconds
+    }, 60000);
 
     return () => clearInterval(interval);
   }, [selectedProcess, timeRange, performanceThreshold, severityFilters]); // Re-run when filters change
+
+  // Helper function to determine risk level from risk score
+  const getRiskLevel = (riskScore: number): 'Critical' | 'High' | 'Medium' | 'Low' => {
+    if (riskScore >= 80) return 'Critical';
+    if (riskScore >= 60) return 'High';
+    if (riskScore >= 40) return 'Medium';
+    return 'Low';
+  };
+
+  // Helper function to calculate estimated impact
+  const calculateEstimatedImpact = (delayPercentage: number): string => {
+    if (delayPercentage > 50) return 'High - Immediate action required';
+    if (delayPercentage > 20) return 'Medium - Schedule optimization needed';
+    return 'Low - Monitor closely';
+  };
 
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg font-semibold text-white">AI Insights</h3>
+          <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+            <span className="text-2xl">🤖</span>
+            AI Insights
+          </h3>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-            <span className="text-xs text-gray-400">Live</span>
+            {loading ? (
+              <>
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                <span className="text-xs text-gray-400">Loading...</span>
+              </>
+            ) : error ? (
+              <>
+                <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                <span className="text-xs text-red-400">Error</span>
+              </>
+            ) : (
+              <>
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-xs text-gray-400">Live</span>
+              </>
+            )}
           </div>
         </div>
         <p className="text-xs text-gray-400">
-          Automated bottleneck detection powered by AI
+          Real-time bottleneck detection from Supabase
         </p>
       </div>
 
-      {/* Stats Summary */}
-      <div className="grid grid-cols-3 gap-2 mb-4">
-        <div className="bg-gray-800/30 rounded-lg p-2 text-center">
-          <div className="text-lg font-bold text-white">{analyses.length}</div>
-          <div className="text-[10px] text-gray-400">Processes</div>
-        </div>
-        <div className="bg-gray-800/30 rounded-lg p-2 text-center">
-          <div className="text-lg font-bold text-red-400">
-            {analyses.filter(a => a.riskLevel === 'Critical' || a.riskLevel === 'High').length}
+      {/* Loading State */}
+      {loading && analyses.length === 0 && (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+            <p className="text-gray-400 text-sm">Loading insights...</p>
           </div>
-          <div className="text-[10px] text-gray-400">Issues</div>
         </div>
-        <div className="bg-gray-800/30 rounded-lg p-2 text-center">
-          <div className="text-lg font-bold text-green-400">
-            {analyses.filter(a => a.riskLevel === 'Low').length}
+      )}
+
+      {/* Error State */}
+      {error && analyses.length === 0 && (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-red-500 text-3xl mb-2">⚠️</div>
+            <p className="text-red-400 text-sm mb-1">Failed to load insights</p>
+            <p className="text-gray-500 text-xs">{error}</p>
           </div>
-          <div className="text-[10px] text-gray-400">Healthy</div>
         </div>
-      </div>
+      )}
+
+      {/* Stats Summary - Show UNFILTERED totals with proper colors */}
+      {!loading && !error && (
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <div className="bg-gray-800/30 rounded-lg p-2 text-center">
+            <div className="text-lg font-bold text-red-500">
+              {unfilteredStats.critical + unfilteredStats.high + unfilteredStats.medium}
+            </div>
+            <div className="text-[10px] text-gray-400">Issues Detected</div>
+          </div>
+          <div className="bg-gray-800/30 rounded-lg p-2 text-center">
+            <div className="text-lg font-bold text-white">{unfilteredStats.total}</div>
+            <div className="text-[10px] text-gray-400">Total Processes</div>
+          </div>
+        </div>
+      )}
 
       {/* Active Bottlenecks - Always Visible, No Collapse */}
       <div className="flex-1 overflow-y-auto">
@@ -538,7 +738,7 @@ export default function InsightPanel({
       {/* Footer - Last Update */}
       <div className="mt-4 pt-3 border-t border-gray-700/30">
         <div className="text-[10px] text-gray-500 text-center">
-          Last updated: {lastUpdate.toLocaleTimeString()}
+          Last updated: {typeof window !== 'undefined' ? lastUpdate.toLocaleTimeString() : '--:--:--'}
         </div>
       </div>
     </div>

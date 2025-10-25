@@ -1,0 +1,131 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                   🗄️  DATABASE SETUP - ACTION STEPS                          ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+📍 YOU ARE HERE: Ready to create database tables in Supabase
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  STEP 1: Open Supabase                                                       │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+   1. Open browser → https://app.supabase.com
+   2. Login to your account
+   3. Select project: naxuqkqpbqdnqunmubbz
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  STEP 2: Open SQL Editor                                                     │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+   1. Click "SQL Editor" in left sidebar
+   2. Click "New Query" button
+   3. You'll see an empty SQL editor window
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  STEP 3: Copy & Run the SQL                                                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+   1. Open file: backend/database/schema.sql
+   2. Select ALL content (Ctrl+A)
+   3. Copy (Ctrl+C)
+   4. Paste into Supabase SQL Editor (Ctrl+V)
+   5. Click "RUN" button (or press Ctrl+Enter)
+   6. Wait ~5 seconds for completion
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  STEP 4: Verify Success                                                      │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+   ✅ You should see these messages at the bottom:
+      ✅ Database schema created successfully!
+      ✅ Tables created: process_steps, insights
+      ✅ Sample data seeded: 15 process steps, 8 insights
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  STEP 5: View Your Data                                                      │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+   1. Click "Table Editor" in left sidebar
+   2. You'll see two tables listed:
+      
+      📊 process_steps  (15 rows)
+      └─ Material Prep, Assembly, Quality Check, Packaging, Dispatch
+      
+      💡 insights  (8 rows)
+      └─ AI recommendations with risk scores
+
+
+   3. Click "process_steps" to view the data
+      Should see entries like:
+      • Material Prep - completed - 280s
+      • Assembly - delayed - 720s
+      • Packaging - in-progress - 250s
+      
+   4. Click "insights" to view recommendations
+      Should see entries like:
+      • Risk: 92 - "Critical delay in packaging..."
+      • Risk: 85 - "Assembly line bottleneck detected..."
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  STEP 6: (Optional) Test from Backend                                        │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+   Open PowerShell in VS Code and run:
+   
+   > cd C:\coding\aiprocessbottleneckdetector1\backend
+   > node database/testConnection.js
+   
+   Expected output:
+   🔍 Testing Supabase Database Connection...
+   ✅ Found 15 process steps
+   ✅ Found 8 insights
+   ✅ ALL TESTS PASSED!
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  ✅ DONE! Your database is ready.                                            ║
+║                                                                               ║
+║  Next: Create API endpoints to fetch this data from your backend             ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════════════════
+
+❌ Problem: "relation already exists"
+   Solution: Tables already created. You're done! Check Table Editor.
+
+❌ Problem: "permission denied"
+   Solution: Make sure you're in the correct Supabase project.
+
+❌ Problem: Zero rows in tables
+   Solution: Re-run the SQL. The INSERT statements might have been skipped.
+
+❌ Problem: Can't find SQL Editor
+   Solution: Look in left sidebar: Dashboard → SQL Editor
+
+═══════════════════════════════════════════════════════════════════════════════
+
+
+🎯 TIP: Save your SQL query in Supabase for later reference:
+   - After running, click the "..." menu → "Save as snippet"
+   - Name it "Process Intelligence Hub - Initial Schema"
+
+
+📚 REFERENCE FILES:
+   • schema.sql          → The SQL to run (MAIN FILE)
+   • DATABASE_SETUP.md   → Detailed documentation
+   • verify.sql          → Test queries to verify setup
+   • testConnection.js   → Node.js verification script
+   • SETUP_COMPLETE.txt  → Complete guide with examples
+
+
+Ready? Let's do this! 🚀
+
+Just copy schema.sql and paste it into Supabase SQL Editor!

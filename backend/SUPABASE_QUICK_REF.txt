@@ -1,0 +1,54 @@
+========================================
+QUICK REFERENCE - SUPABASE BACKEND
+========================================
+
+📦 INSTALLED PACKAGE:
+---------------------
+@supabase/supabase-js@^2.76.1
+
+📁 KEY FILES:
+-------------
+backend/supabaseClient.js  ← Supabase client module
+backend/.env               ← Add your credentials here!
+backend/.env.example       ← Template for .env
+
+🔑 REQUIRED CREDENTIALS:
+------------------------
+Get from: https://supabase.com/dashboard > Your Project > Settings > API
+
+SUPABASE_URL=https://xxxxx.supabase.co
+SUPABASE_ANON_KEY=eyJhbGci...
+
+🚀 START SERVER:
+----------------
+cd backend
+npm run dev
+
+✅ VERIFY CONNECTION:
+---------------------
+http://localhost:5000/api/supabase/test
+
+Expected: {"status":"connected","message":"Supabase connection successful"}
+
+💻 USE IN CODE:
+---------------
+const { supabase } = require('./supabaseClient');
+
+// Query example:
+const { data, error } = await supabase
+  .from('your_table')
+  .select('*');
+
+🔗 NEW ENDPOINTS:
+-----------------
+GET  /api/health           → Includes Supabase status
+GET  /api/supabase/test    → Test Supabase connection
+GET  /api/processes        → Ready for implementation
+GET  /api/bottlenecks      → Ready for implementation
+
+⚠️  IMPORTANT:
+--------------
+Server will EXIT if credentials are missing!
+Configure .env before starting server.
+
+========================================

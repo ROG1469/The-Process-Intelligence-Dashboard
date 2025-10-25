@@ -5,6 +5,19 @@ import ProcessTimelineChart from './ProcessTimelineChart';
 import InsightPanel from './InsightPanel';
 import AIAssistant from './AIAssistant';
 import { TimeRange } from '@/data/processData';
+import { exportProcessesToCSV, exportInsightsToCSV, exportStatsToCSV } from '@/utils/exportData';
+import { fetchProcesses, fetchAIInsightMessages } from '@/services/api';
+
+// Add type mapping helper
+const mapTimeRangeToAPI = (range: TimeRange): 'last1Hour' | 'last6Hours' | 'last24Hours' | 'last7Days' => {
+  const mapping = {
+    '1h': 'last1Hour' as const,
+    '6h': 'last6Hours' as const,
+    '24h': 'last24Hours' as const,
+    '7d': 'last7Days' as const,
+  };
+  return mapping[range];
+};
 
 interface DashboardLayoutProps {
   children?: ReactNode;
@@ -74,25 +87,73 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   };
 
   // Handle Export Report
-  const handleExportReport = () => {
-    const reportData = {
-      timestamp: new Date().toISOString(),
-      timeRange: selectedTimeRange,
-      selectedProcess,
-      performanceThreshold: thresholdValue,
-      severityFilters,
-      message: 'Report exported successfully'
-    };
-    
-    // Create downloadable JSON file
-    const dataStr = JSON.stringify(reportData, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `warehouse-report-${new Date().getTime()}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
+  const handleExportReport = async () => {
+    try {
+      // Convert time range format
+      const apiRange = mapTimeRangeToAPI(selectedTimeRange);
+      
+      // Fetch current data
+      const processResponse = await fetchProcesses({ 
+        range: apiRange,
+        status: 'all',
+        name: selectedProcess === 'all' ? undefined : selectedProcess 
+      });
+      
+      const insightsResponse = await fetchAIInsightMessages(apiRange);
+      
+      // Extract actual process data from stats response
+      const processes = processResponse.data || [];
+      const insights = insightsResponse.messages || [];
+      
+      // Calculate statistics from the response
+      const stats = {
+        total: processResponse.stats?.total || processResponse.count || 0,
+        critical: processes.filter((p: any) => p.status === 'critical').length,
+        delayed: processResponse.stats?.delayed || 0,
+        inProgress: processResponse.stats?.inProgress || 0,
+        completed: processResponse.stats?.completed || 0,
+        failed: processResponse.stats?.failed || 0,
+        onTrack: processes.filter((p: any) => p.status === 'on-track').length,
+      };
+      
+      // Export all data
+      if (processes.length > 0) {
+        exportProcessesToCSV(processes as any, { 
+          filename: `processes-${selectedTimeRange}-${Date.now()}.csv`,
+          includeTimestamp: true 
+        });
+      }
+      
+      setTimeout(() => {
+        if (insights.length > 0) {
+          // Convert insights messages to exportable format
+          const exportableInsights = insights.map((msg: string, idx: number) => ({
+            id: `insight-${idx}`,
+            message: msg,
+            severity: msg.includes('Critical') ? 'Critical' : msg.includes('High') ? 'High' : 'Medium',
+            timestamp: new Date(),
+            processName: selectedProcess !== 'all' ? selectedProcess : ''
+          }));
+          
+          exportInsightsToCSV(exportableInsights as any, { 
+            filename: `insights-${selectedTimeRange}-${Date.now()}.csv`,
+            includeTimestamp: true 
+          });
+        }
+      }, 500);
+      
+      setTimeout(() => {
+        exportStatsToCSV(stats, selectedTimeRange, { 
+          filename: `statistics-${selectedTimeRange}-${Date.now()}.csv`,
+          includeTimestamp: true 
+        });
+      }, 1000);
+      
+      console.log('Export completed successfully');
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Failed to export data. Please try again.');
+    }
   };
 
   // Handle Refresh
@@ -369,9 +430,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </aside>
       </div>
-
-      {/* AI Assistant Floating Bubble */}
-      <AIAssistant />
     </div>
   );
 }
