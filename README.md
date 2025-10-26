@@ -1,4 +1,4 @@
-# 🚀 Process Intelligence Hub
+# 🚀 Process Intelligence Dashboard
 
 An intelligent dashboard that helps operations managers monitor processes, detect bottlenecks, and implement AI-powered optimization strategies in real-time.
 

@@ -24,6 +24,7 @@ interface ProcessTimelineChartProps {
     Medium: boolean;
     Low: boolean;
   };
+  viewMode?: 'desktop' | 'mobile';
 }
 
 interface ChartDataPoint {
@@ -120,7 +121,8 @@ export default function ProcessTimelineChart({
   selectedProcess, 
   timeRange, 
   performanceThreshold, 
-  severityFilters 
+  severityFilters,
+  viewMode = 'desktop'
 }: ProcessTimelineChartProps) {
   // State for data fetching
   const [processData, setProcessData] = useState<any[]>([]);
@@ -319,17 +321,17 @@ export default function ProcessTimelineChart({
 
   return (
     <div className="w-full h-full">
-      <div className="mb-4">
-        <h3 className="text-xl font-semibold text-white mb-2">Process Timeline</h3>
-        <p className="text-gray-400 text-sm">
+      <div className={`${viewMode === 'mobile' ? 'mb-3' : 'mb-4'}`}>
+        <h3 className={`${viewMode === 'mobile' ? 'text-lg' : 'text-xl'} font-semibold text-white mb-2`}>Process Timeline</h3>
+        <p className={`${viewMode === 'mobile' ? 'text-sm' : 'text-gray-400 text-sm'}`}>
           Average processing time for each warehouse operation (measured in minutes)
         </p>
-        <div className="text-xs text-gray-500 mt-1">
+        <div className={`${viewMode === 'mobile' ? 'text-sm' : 'text-xs'} text-gray-500 mt-1`}>
           Showing {chartData.length} process{chartData.length !== 1 ? 'es' : ''} • Max duration: {maxDuration} min
         </div>
       </div>
       
-      <ResponsiveContainer width="100%" height={400}>
+      <ResponsiveContainer width="100%" height={viewMode === 'mobile' ? 300 : 400}>
         <BarChart
           data={chartData}
           margin={{
@@ -403,24 +405,24 @@ export default function ProcessTimelineChart({
       </div>
 
       {/* Performance Summary - Show UNFILTERED totals with proper colors */}
-      <div className="mt-4 grid grid-cols-3 gap-4 text-center">
+      <div className={`${viewMode === 'mobile' ? 'mt-3 grid grid-cols-1 gap-3' : 'mt-4 grid grid-cols-3 gap-4'} text-center`}>
         <div className="bg-gray-800/30 rounded-lg p-3">
           <div className="text-green-500 text-lg font-semibold">
             {unfilteredStats.low}
           </div>
-          <div className="text-gray-400 text-sm">Low Risk</div>
+          <div className={`${viewMode === 'mobile' ? 'text-base' : 'text-gray-400 text-sm'}`}>Low Risk</div>
         </div>
         <div className="bg-gray-800/30 rounded-lg p-3">
           <div className="text-yellow-500 text-lg font-semibold">
             {unfilteredStats.mediumHigh}
           </div>
-          <div className="text-gray-400 text-sm">Medium/High</div>
+          <div className={`${viewMode === 'mobile' ? 'text-base' : 'text-gray-400 text-sm'}`}>Medium/High</div>
         </div>
         <div className="bg-gray-800/30 rounded-lg p-3">
           <div className="text-red-500 text-lg font-semibold">
             {unfilteredStats.critical}
           </div>
-          <div className="text-gray-400 text-sm">Critical</div>
+          <div className={`${viewMode === 'mobile' ? 'text-base' : 'text-gray-400 text-sm'}`}>Critical</div>
         </div>
       </div>
     </div>

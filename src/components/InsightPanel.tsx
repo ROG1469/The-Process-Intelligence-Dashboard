@@ -17,11 +17,13 @@ interface InsightPanelProps {
     Medium: boolean;
     Low: boolean;
   };
+  viewMode?: 'desktop' | 'mobile';
 }
 
 interface InsightCardProps {
   analysis: RiskAnalysis;
   index: number;
+  viewMode?: 'desktop' | 'mobile';
 }
 
 interface Recommendation {
@@ -32,7 +34,7 @@ interface Recommendation {
   difficulty: 'Low' | 'Medium' | 'High';
 }
 
-const InsightCard = ({ analysis, index }: InsightCardProps) => {
+const InsightCard = ({ analysis, index, viewMode = 'desktop' }: InsightCardProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [showRecommendations, setShowRecommendations] = useState(false);
 
@@ -260,44 +262,45 @@ const InsightCard = ({ analysis, index }: InsightCardProps) => {
   return (
     <div
       className={`
-        ${colors.bg} ${colors.border} border rounded-lg p-4
+        ${colors.bg} ${colors.border} border rounded-lg 
+        ${viewMode === 'mobile' ? 'p-6' : 'p-4'}
         transform transition-all duration-500 ease-out
         ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
         hover:scale-[1.02] hover:shadow-lg
       `}
     >
       {/* Header with Process Name and Badge */}
-      <div className="flex items-start justify-between mb-2">
-        <h4 className={`font-semibold ${colors.text} text-sm`}>
+      <div className={`flex items-start justify-between ${viewMode === 'mobile' ? 'mb-4' : 'mb-2'}`}>
+        <h4 className={`${colors.text} ${viewMode === 'mobile' ? 'text-base font-bold' : 'font-semibold text-sm'}`}>
           {analysis.processName}
         </h4>
-        <span className={`${colors.badge} text-xs px-2 py-1 rounded-full font-medium`}>
+        <span className={`${colors.badge} ${viewMode === 'mobile' ? 'text-sm px-3 py-1' : 'text-xs px-2 py-1'} rounded-full font-medium`}>
           {analysis.riskLevel}
         </span>
       </div>
 
       {/* AI Insight Message - Use backend message if available, otherwise generate */}
-      <div className={`bg-gradient-to-r ${colors.bg} border ${colors.border} rounded-lg p-3 mb-3`}>
-        <p className={`text-xs ${colors.text} leading-relaxed font-medium`}>
+      <div className={`bg-gradient-to-r ${colors.bg} border ${colors.border} rounded-lg ${viewMode === 'mobile' ? 'p-4 mb-4' : 'p-3 mb-3'}`}>
+        <p className={`${colors.text} leading-relaxed font-medium ${viewMode === 'mobile' ? 'text-sm' : 'text-xs'}`}>
           💬 {analysis.aiMessage || generateInsightMessage(analysis)}
         </p>
       </div>
 
       {/* Metrics */}
-      <div className="grid grid-cols-3 gap-2 text-xs mb-2">
-        <div className="bg-gray-800/30 rounded px-2 py-1">
+      <div className={`${viewMode === 'mobile' ? 'flex flex-col gap-3 mb-4' : 'grid grid-cols-3 gap-2 mb-2'} ${viewMode === 'mobile' ? 'text-sm' : 'text-xs'}`}>
+        <div className="bg-gray-800/30 rounded px-3 py-2">
           <div className="text-gray-400 text-[10px]">Delay</div>
           <div className={`${colors.icon} font-medium`}>
             {analysis.delayPercentage > 0 ? '+' : ''}{analysis.delayPercentage.toFixed(1)}%
           </div>
         </div>
-        <div className="bg-gray-800/30 rounded px-2 py-1">
+        <div className="bg-gray-800/30 rounded px-3 py-2">
           <div className="text-gray-400 text-[10px]">Risk Score</div>
           <div className={`${colors.icon} font-medium`}>
             {analysis.riskScore}/100
           </div>
         </div>
-        <div className="bg-gray-800/30 rounded px-2 py-1">
+        <div className="bg-gray-800/30 rounded px-3 py-2">
           <div className="text-gray-400 text-[10px]">💰 Cost Impact</div>
           <div className="text-red-400 font-medium">
             ${Math.round(analysis.delayPercentage * 45)}/hr
@@ -307,9 +310,9 @@ const InsightCard = ({ analysis, index }: InsightCardProps) => {
 
       {/* Bottleneck Badge */}
       {analysis.isPotentialBottleneck && (
-        <div className="mt-3 flex items-center gap-2">
+        <div className={`${viewMode === 'mobile' ? 'mt-4' : 'mt-3'} flex items-center gap-2`}>
           <div className={`w-2 h-2 ${colors.icon} rounded-full animate-pulse`}></div>
-          <span className={`text-[10px] ${colors.text} font-medium uppercase tracking-wide`}>
+          <span className={`${colors.text} font-medium uppercase tracking-wide ${viewMode === 'mobile' ? 'text-sm' : 'text-[10px]'}`}>
             Potential Bottleneck
           </span>
         </div>
@@ -317,16 +320,16 @@ const InsightCard = ({ analysis, index }: InsightCardProps) => {
 
       {/* Recommendations Section */}
       {analysis.isPotentialBottleneck && recommendations.length > 0 && (
-        <div className="mt-4 border-t border-gray-700/30 pt-3">
+        <div className={`${viewMode === 'mobile' ? 'mt-6' : 'mt-4'} border-t border-gray-700/30 pt-3`}>
           <button
             onClick={() => setShowRecommendations(!showRecommendations)}
-            className={`w-full flex items-center justify-between text-xs font-medium ${colors.text} hover:opacity-80 transition-opacity`}
+            className={`w-full flex items-center justify-between ${colors.text} hover:opacity-80 transition-opacity ${viewMode === 'mobile' ? 'text-sm font-semibold py-3' : 'text-xs font-medium'}`}
           >
             <span className="flex items-center gap-2">
               💡 {showRecommendations ? 'Hide' : 'Show'} Recommendations ({recommendations.length})
             </span>
             <svg
-              className={`w-4 h-4 transition-transform ${showRecommendations ? 'rotate-180' : ''}`}
+              className={`w-5 h-5 transition-transform ${showRecommendations ? 'rotate-180' : ''}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -336,20 +339,21 @@ const InsightCard = ({ analysis, index }: InsightCardProps) => {
           </button>
 
           {showRecommendations && (
-            <div className="mt-3 space-y-2 animate-fadeIn">
+            <div className={`${viewMode === 'mobile' ? 'mt-4' : 'mt-3'} space-y-3 animate-fadeIn`}>
               {recommendations.map((rec, idx) => (
                 <div
                   key={idx}
-                  className="bg-gray-800/40 rounded-lg p-3 border border-gray-700/30"
+                  className="bg-gray-800/40 rounded-lg border border-gray-700/30"
+                  style={{ padding: viewMode === 'mobile' ? '16px' : '12px' }}
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <h5 className="text-xs font-semibold text-white">{rec.title}</h5>
+                  <div className={`flex items-start justify-between ${viewMode === 'mobile' ? 'mb-3' : 'mb-2'}`}>
+                    <h5 className={`${viewMode === 'mobile' ? 'text-sm' : 'text-xs'} font-semibold text-white`}>{rec.title}</h5>
                     <DifficultyBadge difficulty={rec.difficulty} />
                   </div>
-                  <p className="text-[10px] text-gray-400 mb-2 leading-relaxed">
+                  <p className={`${viewMode === 'mobile' ? 'text-sm mb-3' : 'text-[10px] mb-2'} text-gray-400 leading-relaxed`}>
                     {rec.description}
                   </p>
-                  <div className="flex items-center justify-between text-[10px]">
+                  <div className={`flex items-center justify-between ${viewMode === 'mobile' ? 'text-sm' : 'text-[10px]'}`}>
                     <span className="text-blue-300">
                       📊 {rec.expectedImpact}
                     </span>
@@ -360,8 +364,8 @@ const InsightCard = ({ analysis, index }: InsightCardProps) => {
                     )}
                   </div>
                   {rec.costSavings > 0 && (
-                    <div className="mt-2 pt-2 border-t border-gray-700/30">
-                      <div className="flex items-center justify-between text-[10px]">
+                    <div className={`${viewMode === 'mobile' ? 'mt-3' : 'mt-2'} pt-2 border-t border-gray-700/30`}>
+                      <div className={`flex items-center justify-between ${viewMode === 'mobile' ? 'text-sm' : 'text-[10px]'}`}>
                         <span className="text-gray-400">💵 Money You&apos;ll Save:</span>
                         <span className="text-green-400 font-bold">
                           ${(rec.costSavings * 30).toLocaleString()}/month
@@ -383,7 +387,8 @@ export default function InsightPanel({
   selectedProcess, 
   timeRange, 
   performanceThreshold, 
-  severityFilters 
+  severityFilters,
+  viewMode = 'desktop'
 }: InsightPanelProps) {
   const [analyses, setAnalyses] = useState<RiskAnalysis[]>([]);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
@@ -598,9 +603,9 @@ export default function InsightPanel({
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="mb-4">
+      <div className={`${viewMode === 'mobile' ? 'mb-6' : 'mb-4'}`}>
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+          <h3 className={`${viewMode === 'mobile' ? 'text-xl' : 'text-lg'} font-semibold text-white flex items-center gap-2`}>
             <span className="text-2xl">🤖</span>
             AI Insights
           </h3>
@@ -608,22 +613,22 @@ export default function InsightPanel({
             {loading ? (
               <>
                 <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                <span className="text-xs text-gray-400">Loading...</span>
+                <span className={`${viewMode === 'mobile' ? 'text-sm' : 'text-xs'} text-gray-400`}>Loading...</span>
               </>
             ) : error ? (
               <>
                 <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                <span className="text-xs text-red-400">Error</span>
+                <span className={`${viewMode === 'mobile' ? 'text-sm' : 'text-xs'} text-red-400`}>Error</span>
               </>
             ) : (
               <>
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-xs text-gray-400">Live</span>
+                <span className={`${viewMode === 'mobile' ? 'text-sm' : 'text-xs'} text-gray-400`}>Live</span>
               </>
             )}
           </div>
         </div>
-        <p className="text-xs text-gray-400">
+        <p className={`${viewMode === 'mobile' ? 'text-sm' : 'text-xs'} text-gray-400`}>
           Real-time bottleneck detection from Supabase
         </p>
       </div>
@@ -651,16 +656,16 @@ export default function InsightPanel({
 
       {/* Stats Summary - Show UNFILTERED totals with proper colors */}
       {!loading && !error && (
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          <div className="bg-gray-800/30 rounded-lg p-2 text-center">
-            <div className="text-lg font-bold text-red-500">
+        <div className={`${viewMode === 'mobile' ? 'grid grid-cols-1 gap-3 mb-6' : 'grid grid-cols-2 gap-2 mb-4'}`}>
+          <div className="bg-gray-800/30 rounded-lg p-3 text-center">
+            <div className={`${viewMode === 'mobile' ? 'text-2xl' : 'text-lg'} font-bold text-red-500`}>
               {unfilteredStats.critical + unfilteredStats.high + unfilteredStats.medium}
             </div>
-            <div className="text-[10px] text-gray-400">Issues Detected</div>
+            <div className={`${viewMode === 'mobile' ? 'text-sm' : 'text-[10px]'} text-gray-400`}>Issues Detected</div>
           </div>
-          <div className="bg-gray-800/30 rounded-lg p-2 text-center">
-            <div className="text-lg font-bold text-white">{unfilteredStats.total}</div>
-            <div className="text-[10px] text-gray-400">Total Processes</div>
+          <div className="bg-gray-800/30 rounded-lg p-3 text-center">
+            <div className={`${viewMode === 'mobile' ? 'text-2xl' : 'text-lg'} font-bold text-white`}>{unfilteredStats.total}</div>
+            <div className={`${viewMode === 'mobile' ? 'text-sm' : 'text-[10px]'} text-gray-400`}>Total Processes</div>
           </div>
         </div>
       )}
@@ -668,10 +673,10 @@ export default function InsightPanel({
       {/* Active Bottlenecks - Always Visible, No Collapse */}
       <div className="flex-1 overflow-y-auto">
         {analyses.length > 0 ? (
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 mb-3">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
               <span className="w-1 h-4 bg-red-500 rounded"></span>
-              <h4 className="text-xs font-semibold text-red-400">
+              <h4 className={`${viewMode === 'mobile' ? 'text-sm' : 'text-xs'} font-semibold text-red-400`}>
                 ACTIVE BOTTLENECKS ({analyses.length})
               </h4>
             </div>
@@ -680,6 +685,7 @@ export default function InsightPanel({
                 key={analysis.processId}
                 analysis={analysis}
                 index={index}
+                viewMode={viewMode}
               />
             ))}
           </div>
@@ -698,14 +704,14 @@ export default function InsightPanel({
       </div>
 
       {/* Additional Analysis Panels */}
-      <div className="mt-6 space-y-4">
+      <div className={`${viewMode === 'mobile' ? 'mt-8' : 'mt-6'} space-y-4`}>
         {/* Scenario Planner - Collapsible */}
         <div className="bg-gray-800/50 rounded-lg border border-gray-700/30 overflow-hidden">
           <button
             onClick={() => setShowScenarios(!showScenarios)}
-            className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-800/70 transition-colors"
+            className={`w-full ${viewMode === 'mobile' ? 'px-6 py-4' : 'px-4 py-3'} flex items-center justify-between hover:bg-gray-800/70 transition-colors`}
           >
-            <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+            <h3 className={`${viewMode === 'mobile' ? 'text-base' : 'text-sm'} font-semibold text-white flex items-center gap-2`}>
               🎯 Scenario Planner
             </h3>
             <svg
@@ -719,7 +725,7 @@ export default function InsightPanel({
           </button>
           
           {showScenarios && (
-            <div className="px-4 pb-4 animate-fadeIn">
+            <div className={`${viewMode === 'mobile' ? 'px-6 pb-6' : 'px-4 pb-4'} animate-fadeIn`}>
               <ScenarioPlanner 
                 selectedProcess={selectedProcess}
                 timeRange={timeRange}
@@ -732,12 +738,13 @@ export default function InsightPanel({
         <PeriodComparison 
           selectedProcess={selectedProcess}
           currentTimeRange={timeRange}
+          totalProcesses={unfilteredStats.total}
         />
       </div>
 
       {/* Footer - Last Update */}
-      <div className="mt-4 pt-3 border-t border-gray-700/30">
-        <div className="text-[10px] text-gray-500 text-center">
+      <div className={`${viewMode === 'mobile' ? 'mt-6' : 'mt-4'} pt-3 border-t border-gray-700/30`}>
+        <div className={`${viewMode === 'mobile' ? 'text-sm' : 'text-[10px]'} text-gray-500 text-center`}>
           Last updated: {typeof window !== 'undefined' ? lastUpdate.toLocaleTimeString() : '--:--:--'}
         </div>
       </div>

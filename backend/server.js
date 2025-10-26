@@ -66,7 +66,7 @@ app.use((req, res, next) => {
 // Health check route
 app.get('/', (req, res) => {
   res.json({ 
-    message: 'Process Intelligence Hub Backend API',
+    message: 'Process Intelligence Dashboard Backend API',
     status: 'Running',
     version: '1.0.0'
   });
