@@ -91,7 +91,7 @@ This AI-powered dashboard transforms raw process data into actionable intelligen
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/ai-warehouse-bottleneck-detector.git
+git clone https://github.com/ROG1469/ai-warehouse-bottleneck-detector.git
 cd ai-warehouse-bottleneck-detector
 
 # Configure environment variables
