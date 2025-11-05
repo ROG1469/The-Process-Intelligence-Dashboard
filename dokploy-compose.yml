@@ -1,20 +1,7 @@
 version: '3.8'
 
 services:
-  # Frontend
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: pi-dashboard
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://api:5000}
-    restart: unless-stopped
-
-  # Backend
+  # Backend - Deploy first so frontend can connect
   api:
     build:
       context: ./backend
@@ -27,4 +14,36 @@ services:
       - PORT=5000
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - FRONTEND_URL=${FRONTEND_URL:-*}
+    networks:
+      - pi-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Frontend
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pi-dashboard
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      # IMPORTANT: This must be the PUBLIC URL that browsers can access
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:5000}
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - pi-network
+    restart: unless-stopped
+
+networks:
+  pi-network:
+    driver: bridge
