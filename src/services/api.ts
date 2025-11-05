@@ -1,7 +1,7 @@
 // API Service Layer - Connects Frontend to Backend
 // All backend API calls go through this file
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 // ============================================================================
 // TYPES - Match backend response structures
@@ -88,7 +88,7 @@ export const fetchProcesses = async (filters?: {
     if (filters?.status && filters.status !== 'all') params.append('status', filters.status);
     if (filters?.name && filters.name !== 'all') params.append('name', filters.name);
     
-    const url = `${API_BASE_URL}/processes${params.toString() ? '?' + params.toString() : ''}`;
+    const url = `${API_BASE_URL}/api/processes${params.toString() ? '?' + params.toString() : ''}`;
     console.log('🔍 Fetching processes from:', url);
     
     const response = await fetch(url);
@@ -115,7 +115,7 @@ export const fetchDelayedProcesses = async (
 ): Promise<ApiResponse<DelayedProcess[]> & { count: number; range: string }> => {
   try {
     const params = range ? `?range=${range}` : '';
-    const url = `${API_BASE_URL}/processes/delayed${params}`;
+    const url = `${API_BASE_URL}/api/processes/delayed${params}`;
     console.log('🔍 Fetching delayed processes from:', url);
     
     const response = await fetch(url);
@@ -142,7 +142,7 @@ export const fetchProcessSummary = async (
 ): Promise<ApiResponse<ProcessSummary[]> & { total_processes: number; range: string }> => {
   try {
     const params = range ? `?range=${range}` : '';
-    const url = `${API_BASE_URL}/processes/summary${params}`;
+    const url = `${API_BASE_URL}/api/processes/summary${params}`;
     console.log('🔍 Fetching process summary from:', url);
     
     const response = await fetch(url);
@@ -166,7 +166,7 @@ export const fetchProcessSummary = async (
  */
 export const fetchProcessById = async (id: string): Promise<ApiResponse<ProcessStep & { insights: Insight[] }>> => {
   try {
-    const url = `${API_BASE_URL}/processes/${id}`;
+    const url = `${API_BASE_URL}/api/processes/${id}`;
     console.log('🔍 Fetching process by ID:', id);
     
     const response = await fetch(url);
@@ -202,7 +202,7 @@ export const fetchAIInsightMessages = async (
     if (range) params.append('range', range);
     params.append('threshold', threshold.toString());
     
-    const url = `${API_BASE_URL}/insights?${params.toString()}`;
+    const url = `${API_BASE_URL}/api/insights?${params.toString()}`;
     console.log('💬 Fetching AI insight messages from:', url);
     
     const response = await fetch(url);
@@ -240,7 +240,7 @@ export const fetchInsights = async (filters?: {
     if (filters?.range) params.append('range', filters.range);
     if (filters?.minRisk !== undefined) params.append('minRisk', filters.minRisk.toString());
     
-    const url = `${API_BASE_URL}/insights${params.toString() ? '?' + params.toString() : ''}`;
+    const url = `${API_BASE_URL}/api/insights${params.toString() ? '?' + params.toString() : ''}`;
     console.log('🔍 Fetching insights from:', url);
     
     const response = await fetch(url);
@@ -267,7 +267,7 @@ export const fetchHighRiskInsights = async (
 ): Promise<ApiResponse<Insight[]> & { count: number; range: string }> => {
   try {
     const params = range ? `?range=${range}` : '';
-    const url = `${API_BASE_URL}/insights/high-risk${params}`;
+    const url = `${API_BASE_URL}/api/insights/high-risk${params}`;
     console.log('🔍 Fetching high-risk insights from:', url);
     
     const response = await fetch(url);
@@ -291,7 +291,7 @@ export const fetchHighRiskInsights = async (
  */
 export const fetchInsightById = async (id: string): Promise<ApiResponse<Insight>> => {
   try {
-    const url = `${API_BASE_URL}/insights/${id}`;
+    const url = `${API_BASE_URL}/api/insights/${id}`;
     console.log('🔍 Fetching insight by ID:', id);
     
     const response = await fetch(url);
@@ -392,7 +392,7 @@ export const transformInsightForFrontend = (backendInsight: Insight) => {
  */
 export const checkBackendHealth = async (): Promise<boolean> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/processes?range=last1Hour`, {
+    const response = await fetch(`${API_BASE_URL}/api/processes?range=last1Hour`, {
       method: 'GET',
       signal: AbortSignal.timeout(5000) // 5 second timeout
     });
@@ -513,7 +513,7 @@ export const fetchComprehensiveAnalysis = async (
     if (range) params.append('range', range);
     if (threshold > 0) params.append('threshold', threshold.toString());
     
-    const url = `${API_BASE_URL}/insights${params.toString() ? '?' + params.toString() : ''}`;
+    const url = `${API_BASE_URL}/api/insights${params.toString() ? '?' + params.toString() : ''}`;
     console.log('🔍 Fetching AI-powered analysis from:', url);
     
     const response = await fetch(url);
