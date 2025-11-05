@@ -3,6 +3,7 @@ node_modules
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+backend/node_modules
 
 # Next.js
 .next
@@ -14,10 +15,19 @@ dist
 .env
 .env.local
 .env.*.local
+backend/.env
 
 # Testing
 coverage
 .nyc_output
+__tests__
+e2e
+test-results
+playwright-report
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
 
 # IDE
 .vscode
@@ -33,6 +43,12 @@ Thumbs.db
 # Git
 .git
 .gitignore
+.github
+
+# Documentation
+*.md
+LINKEDIN
+Picture
 
 # Logs
 logs
@@ -42,3 +58,4 @@ logs
 .cache
 .temp
 tmp
+.swc
