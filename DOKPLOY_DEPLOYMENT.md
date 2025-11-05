@@ -11,6 +11,10 @@
 Set these in Dokploy's frontend application settings:
 ```
 NODE_ENV=production
+NEXT_PUBLIC_API_URL=http://api:5000
+```
+**Note**: If deploying separately (not docker-compose), use your actual backend URL:
+```
 NEXT_PUBLIC_API_URL=https://your-backend-domain.com
 ```
 

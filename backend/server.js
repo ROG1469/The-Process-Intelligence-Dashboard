@@ -46,7 +46,13 @@ const authLimiter = rateLimit({
 });
 
 // Middleware
-app.use(cors()); // Enable CORS for frontend communication
+// CORS configuration - allow all origins in development, specific in production
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || '*',
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions)); // Enable CORS for frontend communication
 app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -22,11 +22,13 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const endpoint = isSignup ? '/auth/signup' : '/auth/login';
+      const endpoint = isSignup ? '/api/auth/signup' : '/api/auth/login';
       const payload = isSignup 
         ? { email: formData.email, password: formData.password, name: formData.name }
         : { email: formData.email, password: formData.password };
 
+      console.log('API Request:', `${API_BASE_URL}${endpoint}`);
+      
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: {
@@ -51,7 +53,12 @@ export default function LoginPage() {
       router.push('/dashboard');
 
     } catch (err: any) {
-      setError(err.message || 'An error occurred');
+      console.error('Auth error:', err);
+      if (err.message === 'Failed to fetch') {
+        setError('Cannot connect to server. Please check if the backend is running.');
+      } else {
+        setError(err.message || 'An error occurred');
+      }
     } finally {
       setLoading(false);
     }
